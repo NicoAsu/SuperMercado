@@ -63,6 +63,7 @@
             await imagenFile.OpenReadStream().ReadAsync(buffer);
             slider.Imagen = buffer;
             imageUrl = $"data:image/jpg; base64,{Convert.ToBase64String(buffer)}";
+
         }
     }
     protected async Task Save()
@@ -70,6 +71,7 @@
         await dataContext.AddAsync(slider);
         await dataContext.SaveChangesAsync();
         slider = new Slider();
+        imageUrl = "";
         await JsRuntime.InvokeVoidAsync("alert", "Item agregado al slider");
     }
 }

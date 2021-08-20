@@ -54,7 +54,8 @@
                     </div>
                     @if (imageUrl != null)
                     {
-                        <img src="@imageUrl" width="200" height="200">
+                        <br />
+                        <img src="@imageUrl" style="height:200px; max-width:300px;">
                     }
                 </div>
 
@@ -97,6 +98,7 @@
     {
         await ProductsService.InsertProduct(producto);
         producto = new Producto();
+        imageUrl = "";
         await JsRuntime.InvokeVoidAsync("alert", "Producto agregado");
     }
 }
