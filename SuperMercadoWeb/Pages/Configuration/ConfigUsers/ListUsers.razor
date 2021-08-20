@@ -1,0 +1,68 @@
+﻿@page "/Config/ListUsers"
+@attribute [Authorize(Roles = "Administrator, Standard")]
+<h3>Lista de Usuarios</h3>
+@if (roleuser == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead class="thead-dark">
+            <tr style="text-align:center;">
+                <th scope="col">Nombre</th>
+                <th scope="col">Email</th>
+                <th scope="col">Rol</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in roleuser)
+            {
+                <tr style="text-align:center;">
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.RoleName</td>
+
+                    <td>
+                        <AuthorizeView Roles="Administrator">
+                            <button @onclick="() => Eliminar(user.UserId)" class="btn btn-danger btn-xs" title="Eliminar">
+                                <i class="oi oi-trash"></i>
+                            </button>
+                        </AuthorizeView>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+
+    List<RoleUserModel> roleuser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var listado = await (from user in DbLogin.Users
+                             join userRoles in DbLogin.UserRoles on user.Id equals userRoles.UserId
+                             join role in DbLogin.Roles on userRoles.RoleId equals role.Id
+                             select new { UserId = user.Id, UserName = user.UserName, Email = user.Email, RoleId = role.Id, RoleName = role.Name })
+                     .ToListAsync();
+        foreach (var user in listado)
+        {
+            roleuser.Add(new RoleUserModel()
+            {
+                UserId = user.UserId,
+                RoleId = user.RoleId,
+                UserName = user.UserName,
+                RoleName = user.RoleName,
+                Email = user.Email
+            });
+        }
+    }
+    protected async Task Eliminar(string id)
+    {
+        await UserService.DeleteUser(id);
+        await OnInitializedAsync();
+    }
+}
+
