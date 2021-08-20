@@ -1,5 +1,6 @@
 ﻿@page "/Config/ListRoles"
 @inject RoleManager<IdentityRole> roleManager
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Lista de Roles</h3>
 <AuthorizeView Roles="Administrator">
     <Authorized>

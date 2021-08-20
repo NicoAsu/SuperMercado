@@ -1,5 +1,6 @@
 ﻿@page "/Config/ListProducts"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <label>Filtrar por categoria: </label>
 <select @bind="filtro" class="form-control">
     <option value="">-- Seleccione una categoria --</option>

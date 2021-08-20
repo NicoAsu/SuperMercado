@@ -1,5 +1,6 @@
 ﻿@page "/Config/AddCategorias"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <h3>AddCategorias</h3>
 <EditForm Model="@categoria" OnValidSubmit="Save">
     <DataAnnotationsValidator />

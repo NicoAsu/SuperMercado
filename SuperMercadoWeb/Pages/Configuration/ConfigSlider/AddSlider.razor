@@ -1,5 +1,6 @@
 ﻿@page "/Config/AddSlider"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Agregar item al Slider</h3>
 <br />
 <h5>Agregue un video o una imagen</h5>
@@ -20,20 +21,22 @@
                 {
                     @if (slider.VideoUrl.Trim() != "")
                     {
-                        <iframe width="500" height="281" src="@("https://www.youtube.com/embed/"+@slider.VideoUrl)" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe width="500" height="281" src="https://www.youtube.com/embed/@slider.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     }
                 }
-                <div class="form-group">
-                    <label class="control-label col-md-2">Imagen:</label>
-                    <div class="col-md-10">
-                        <InputFile accept="png, jpeg, jpg" OnChange="HandleFileSelected"></InputFile>
-                        <ValidationMessage For="@(() => slider.Imagen)" />
-                    </div>
-                    @if (imageUrl != null)
-                    {
-                        <img src="@imageUrl" width="200" height="200">
-                    }
+            <div class="form-group">
+                <label class="control-label col-md-2">Imagen:</label>
+                <div class="col-md-10">
+                    <InputFile accept="png, jpeg, jpg" OnChange="HandleFileSelected"></InputFile>
+                    <ValidationMessage For="@(() => slider.Imagen)" />
                 </div>
+
+                @if (imageUrl != null)
+                {
+                    <br />
+                    <img src="@imageUrl" style="height:200px; max-width:300px;">
+                }
+            </div>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
                         <button type="submit" class="btn btn-success">
@@ -54,12 +57,10 @@
     async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         var imagenFile = e.GetMultipleFiles().FirstOrDefault();
-        string format = "image/jpg";
         if (imagenFile != null)
         {
-            var resized = await imagenFile.RequestImageFileAsync(format, 100, 100);
-            var buffer = new Byte[resized.Size];
-            await resized.OpenReadStream().ReadAsync(buffer);
+            var buffer = new Byte[imagenFile.Size];
+            await imagenFile.OpenReadStream().ReadAsync(buffer);
             slider.Imagen = buffer;
             imageUrl = $"data:image/jpg; base64,{Convert.ToBase64String(buffer)}";
         }

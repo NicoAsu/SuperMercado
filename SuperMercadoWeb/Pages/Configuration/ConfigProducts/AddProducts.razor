@@ -1,5 +1,6 @@
 ﻿@page "/Config/AddProducts"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Agregar Producto</h3>
 <AuthorizeView Context="Auth" Roles="Administrator">
     <Authorized>
@@ -80,12 +81,10 @@
     async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         var imagenFile = e.GetMultipleFiles().FirstOrDefault();
-        string format = "image/jpg";
         if (imagenFile != null)
         {
-            var resized = await imagenFile.RequestImageFileAsync(format, 100, 100);
-            var buffer = new Byte[resized.Size];
-            await resized.OpenReadStream().ReadAsync(buffer);
+            var buffer = new Byte[imagenFile.Size];
+            await imagenFile.OpenReadStream().ReadAsync(buffer);
             producto.Imagen = buffer;
             imageUrl = $"data:image/jpg; base64,{Convert.ToBase64String(buffer)}";
         }
