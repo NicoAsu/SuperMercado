@@ -1,5 +1,6 @@
 ﻿@page "/Config/AddSlider"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Agregar item al Slider</h3>
 <br />
 <h5>Agregue un video o una imagen</h5>
@@ -20,7 +21,7 @@
                 {
                     @if (slider.VideoUrl.Trim() != "")
                     {
-                        <iframe width="500" height="281" src="@("https://www.youtube.com/embed/"+@slider.VideoUrl)" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe width="500" height="281" src="https://www.youtube.com/embed/@slider.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     }
                 }
                 <div class="form-group">
@@ -29,9 +30,11 @@
                         <InputFile accept="png, jpeg, jpg" OnChange="HandleFileSelected"></InputFile>
                         <ValidationMessage For="@(() => slider.Imagen)" />
                     </div>
+
                     @if (imageUrl != null)
                     {
-                        <img src="@imageUrl" width="200" height="200">
+                        <br />
+                        <img src="@imageUrl" style="height:200px; max-width:300px;">
                     }
                 </div>
                 <div class="form-group">
@@ -54,14 +57,13 @@
     async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         var imagenFile = e.GetMultipleFiles().FirstOrDefault();
-        string format = "image/jpg";
         if (imagenFile != null)
         {
-            var resized = await imagenFile.RequestImageFileAsync(format, 100, 100);
-            var buffer = new Byte[resized.Size];
-            await resized.OpenReadStream().ReadAsync(buffer);
+            var buffer = new Byte[imagenFile.Size];
+            await imagenFile.OpenReadStream().ReadAsync(buffer);
             slider.Imagen = buffer;
             imageUrl = $"data:image/jpg; base64,{Convert.ToBase64String(buffer)}";
+
         }
     }
     protected async Task Save()
@@ -69,6 +71,7 @@
         await dataContext.AddAsync(slider);
         await dataContext.SaveChangesAsync();
         slider = new Slider();
+        imageUrl = "";
         await JsRuntime.InvokeVoidAsync("alert", "Item agregado al slider");
     }
 }

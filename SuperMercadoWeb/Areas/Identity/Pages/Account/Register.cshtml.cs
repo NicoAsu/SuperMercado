@@ -92,10 +92,6 @@ namespace SuperMercadoWeb.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    var buscar = await _userManager.FindByNameAsync(user.UserName);
-                    var usuario = new Usuario { UserId = buscar.Id, Fnacimiento = Input.Fnacimiento };
-                    await _datacontext.Usuarios.AddAsync(usuario);
-                    await _userManager.AddToRoleAsync(buscar, "Standard");
 
                     _logger.LogInformation("User created a new account with password.");
 
@@ -107,11 +103,19 @@ namespace SuperMercadoWeb.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
+                    var buscar = await _userManager.FindByNameAsync(user.UserName);
+
+                    var usuario = new Usuario { UserId = buscar.Id, Fnacimiento = Input.Fnacimiento };
+                     _datacontext.Usuarios.Add(usuario);
+                    _datacontext.SaveChanges();
+                    await _userManager.AddToRoleAsync(buscar, "Standard");
+
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
+    
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else
