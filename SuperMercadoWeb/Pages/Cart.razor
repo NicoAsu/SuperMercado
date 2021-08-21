@@ -1,0 +1,116 @@
+@page "/Cart"
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JsRuntime
+<nav class="navbar navbar-expand-lg navbar-light bg-light mt-5">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="">Supermercado Web</a>
+        <ul class="navbar-nav mr-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="#!">Sobre nosotros</a></li>
+        </ul>
+        <form class="d-flex">
+            <a class="btn btn-outline-primary" role="button" href="carrito">
+                <i class="bi bi-credit-card"></i>
+                Comprar todo
+            </a>
+        </form>
+    </div>
+</nav>
+
+<div class="page-header ">
+    <h1 class="text-center border-bottom border-secondary"> Tu carrito de compras</h1>
+</div>
+
+<div class="row row-cols-2 row-cols-md-3 justify-content-center">
+    @foreach (var carrito in carritos)
+    {
+        var producto = products.Where(x => x.Id == carrito.ProductoId).FirstOrDefault();
+        if (producto != null)
+        {
+            <div class="col-3 mb-3">
+                <div class="card h-100">
+                    <!-- imagen-->
+                    <img class="card-img-top" style="width: 100%; max-height: 200px; min-height: 150px;" src="data:image/jpg;base64,@Convert.ToBase64String(producto.Imagen)" alt="..." />
+                    <!-- detalles del producto-->
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h5 class="fw-bolder">@producto.Nombre</h5>
+                            <br />
+                            @producto.Precio DOP$
+                            <br />
+                            Cantidad restante: @producto.Cantidad
+                            <br />
+                            <label for="">Cantidad: @carrito.Cantidad</label>
+                            <button class="btn btn-outline-primary mb-2" href="#" @onclick="@(()=>actualizar(carrito,1))">+</button>
+                            <button class="btn btn-outline-danger mt-auto" href="#"@onclick="@(()=>actualizar(carrito,0))">-</button>
+                        </div>
+                    </div>
+                    <!-- boton-->
+                    @* p-4 *@
+                    @* p-4 pt-0 *@
+
+                    <div class="card-footer border-top-0 bg-transparent">
+                        <div class="text-center">
+                            <button class="btn btn-outline-danger mt-auto" href="#" @onclick="@(()=> eliminar(carrito))">Eliminar del carrito</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    }
+</div>
+@code{
+    List<Carrito> carritos = new List<Carrito>();
+    List<Producto> products = new List<Producto>();
+    async Task alerta(string mensaje)
+    {
+        await JsRuntime.InvokeVoidAsync("alert", mensaje);
+    }
+    void actualizar(Carrito carrito, int n)
+    {
+        if (n > 0)
+        {
+            carrito.Cantidad += 1;
+        }
+        else if (carrito.Cantidad > 1)
+        {
+            carrito.Cantidad -= 1;
+        }
+
+        dataContext.SaveChanges();
+    }
+    void eliminar(Carrito carrito)
+    {
+        var principal = HttpContextAccessor.HttpContext.User;
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId != null)
+        {
+            dataContext.Remove(carrito);
+            dataContext.SaveChanges();
+            carritos = dataContext.Carritos.Where(x => x.UserId == userId).ToList();
+            products = dataContext.Productos.ToList();
+        }
+        else
+        {
+            alerta("Debe estar logeado para esto");
+        }
+
+    }
+    protected override void OnInitialized()
+    {
+        var principal = HttpContextAccessor.HttpContext.User;
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId != null)
+        {
+            carritos = dataContext.Carritos.Where(x => x.UserId == userId).ToList();
+            products = dataContext.Productos.ToList();
+        }
+        else
+        {
+            alerta("Debe estar logeado para agregar productos al carrito");
+        }
+    }
+
+}

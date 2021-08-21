@@ -36,7 +36,7 @@ namespace SuperMercadoWeb
             services.AddScoped<IProductsService, ProductsService>();
             services.AddScoped<IUserService, UserService>();
 
-
+            services.AddHttpContextAccessor();
             //services.AddDefaultIdentity<IdentityUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<SuperMercadoContext>();
         }
 
