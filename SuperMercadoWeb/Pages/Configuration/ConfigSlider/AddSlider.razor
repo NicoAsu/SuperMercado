@@ -24,19 +24,19 @@
                         <iframe width="500" height="281" src="https://www.youtube.com/embed/@slider.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     }
                 }
-                <div class="form-group">
-                    <label class="control-label col-md-2">Imagen:</label>
-                    <div class="col-md-10">
-                        <InputFile accept="png, jpeg, jpg" OnChange="HandleFileSelected"></InputFile>
-                        <ValidationMessage For="@(() => slider.Imagen)" />
-                    </div>
-
-                    @if (imageUrl != null)
-                    {
-                        <br />
-                        <img src="@imageUrl" style="height:200px; max-width:300px;">
-                    }
+            <div class="form-group">
+                <label class="control-label col-md-2">Imagen:</label>
+                <div class="col-md-10">
+                    <InputFile accept="png, jpeg, jpg" OnChange="HandleFileSelected"></InputFile>
+                    <ValidationMessage For="@(() => slider.Imagen)" />
                 </div>
+
+                @if (imageUrl != null)
+                {
+                    <br />
+                    <img src="@imageUrl" style="height:200px; max-width:300px;">
+                }
+            </div>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
                         <button type="submit" class="btn btn-success">

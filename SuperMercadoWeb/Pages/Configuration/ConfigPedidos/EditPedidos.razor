@@ -1,5 +1,6 @@
 ﻿@page "/Config/EditPedidos/{id:int}"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Editar el Pedido</h3>
 <AuthorizeView Context="Auth" Roles="Administrator">
     <Authorized>

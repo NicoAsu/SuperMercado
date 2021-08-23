@@ -1,5 +1,7 @@
 ﻿@page "/Products"
-
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JsRuntime
 <h3>Productos</h3>
 <label>Filtrar por categoria: </label>
 <select @bind="filtro" class="form-control">
@@ -47,7 +49,7 @@ else
                     <!-- boton-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
-                            <a class="btn btn-outline-primary mt-auto" href="#">Añadir al carrito</a>
+                            <a class="btn btn-outline-primary mt-auto" @onclick="() => anadir(producto.Id)">Añadir al carrito</a>
                         </div>
                     </div>
                 </div>
@@ -55,12 +57,36 @@ else
         }
     </div>
 }
+
 @code {
     int filtro;
     String nombre = "";
     List<Producto> productos = new List<Producto>();
     List<Categoria> categorias = new List<Categoria>();
+    List<Carrito> carritos = new List<Carrito>();
     bool cargando = true;
+    async Task anadir(int productId)
+    {
+        var principal = HttpContextAccessor.HttpContext.User;
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userId != null)
+        {
+            var carrito = dataContext.Carritos.Where(x => x.UserId == userId && x.ProductoId == productId).FirstOrDefault();
+            if(carrito != null)
+            {
+                carrito.Cantidad += 1;
+            }
+            else
+            {
+                await dataContext.Carritos.AddAsync(new Carrito { ProductoId = productId, Cantidad=1, UserId=userId });
+            }
+            await dataContext.SaveChangesAsync();
+        }
+        else
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Debe estar logeado para agregar productos al carrito");
+        }
+    }
     void actualizar()
     {
         cargando = true;
@@ -75,6 +101,7 @@ else
     }
     protected override void OnInitialized()
     {
+
         productos = dataContext.Productos.ToList();
         categorias = dataContext.Categorias.ToList();
         cargando = false;
