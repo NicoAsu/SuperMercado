@@ -1,4 +1,5 @@
 ﻿@page "/Config/EditProducts/{id:int}"
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Editar Datos del Producto</h3>
 <AuthorizeView Context="Auth">
     <Authorized>

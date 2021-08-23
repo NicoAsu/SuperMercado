@@ -1,5 +1,6 @@
 ﻿@page "/Config/ListCategorias"
 @inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Administrator")]
 <label>Buscar Id: </label>
 <input type="number" @bind="Id" />
 <br />

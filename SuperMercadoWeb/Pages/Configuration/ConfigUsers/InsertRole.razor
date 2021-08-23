@@ -1,6 +1,7 @@
 ﻿@page "/Config/Insertrole"
 @inject UserManager<IdentityUser> userManager
 @inject RoleManager<IdentityRole> roleManager
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Asignar Roles</h3>
 <label style="color: @color">@message</label>
 <AuthorizeView Roles="Administrator">
@@ -104,7 +105,7 @@
                 var roleselect = DbLogin.AspNetRoles.Find(idrole);
 
 
-                await userManager.AddToRoleAsync(userselect,roleselect.Name);
+                await userManager.AddToRoleAsync(userselect, roleselect.Name);
                 color = "darkgreen";
                 message = $"Al usuario: {userselect.UserName}, se le asigno el rol: {roleselect.Name}";
             }
