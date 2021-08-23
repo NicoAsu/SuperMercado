@@ -1,7 +1,9 @@
-﻿using System;
+﻿
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using System.Web;
 #nullable disable
 
 namespace SuperMercadoWeb.Models
@@ -26,5 +28,6 @@ namespace SuperMercadoWeb.Models
 
         [Required(ErrorMessage = "Tiene que seleccionar una imagen")]
         public byte[] Imagen { get; set; }
+        
     }
 }
