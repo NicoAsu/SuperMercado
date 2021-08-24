@@ -1,13 +1,7 @@
-﻿@page "/Config/DetailsUser/{id:string}"
-@using System.Security.Claims
-@inject IHttpContextAccessor HttpContextAccessor
-@inject IJSRuntime JsRuntime
+﻿@page "/Config/DetailsUser/{id}"
+@attribute [Authorize(Roles = "Administrator, Standard")]
 <h3>Detalles del usuario</h3>
-@if (user == null)
-{
-    <p><em>Cargando...</em></p>
-}
-else
+@if (user != null)
 {
     <div>
         <h4 style="        text-align: center;
@@ -36,14 +30,6 @@ else
                 @user.Email
             </dd>
 
-            <dt>
-                Número de Telefono
-            </dt>
-
-            <dd>
-                @user.PhoneNumber
-            </dd>
-
         </dl>
 
     </div>
@@ -53,9 +39,7 @@ else
 <table class="table">
     <thead class="thead-dark">
         <tr style="text-align:center;">
-            <th scope="col">Usuario</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Comentario</th>
+            <th scope="col">Id</th>
             <th scope="col">Estado</th>
             <th scope="col">Precio Total</th>
             <th scope="col"></th>
@@ -65,19 +49,12 @@ else
         @foreach (var pedido in pedidos)
         {
             <tr style="text-align:center;">
-                <td>@user.UserName</td>
-                <td>@pedido.Direccion</td>
-                <td>@pedido.Comentario</td>
+                <td>@pedido.Id</td>
                 <td>@pedido.Estado</td>
                 <td>@pedido.PrecioTotal</td>
                 <td>
-                    <AuthorizeView Roles="Administrator">
-                        @*<button @onclick="() => Eliminar(user.UserId)" class="btn btn-danger btn-xs" title="Eliminar">
-                                <i class="oi oi-trash"></i>
-                            </button>*@
-                    </AuthorizeView>
-                    <a href="/Config/DetailsUser/@pedido.Id" class="btn btn-primary btn-xs" title="Detalles del pedido">
-                        <i class="oi oi-pencil"></i>
+                    <a href="/Config/DetailsUser/Pedido/@pedido.Id" class="btn btn-primary btn-xs" title="Detalles del pedido">
+                        Detalles
                     </a>
                 </td>
             </tr>
@@ -94,34 +71,12 @@ else
 @code {
     [Parameter]
     public string id { get; set; }
-    string userId;
-    IdentityUser user = new IdentityUser();
-    IEnumerable<Pedido> listpedidos { get; set; }
+    AspNetUser user;
     List<Pedido> pedidos = new List<Pedido>();
-
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if(id == null)
-        {
-            var principal = HttpContextAccessor.HttpContext.User;
-            userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId != null)
-            {
-                
-            }
-        }
-        user = await DbLogin.AspNetUsers.FindAsync(id);
-
-        listpedidos = await dataContext.Pedidos.ToListAsync();
-
-        foreach (var item in listpedidos)
-        {
-            if (item.UserId == user.Id)
-            {
-                pedidos.Add(item);
-            }
-        }
+        user = dataContext.AspNetUsers.Where(x => x.Id == id).OrderByDescending(x => x.Id).FirstOrDefault();
+        pedidos = dataContext.Pedidos.Where(x => x.UserId == id).ToList();
     }
 
 }

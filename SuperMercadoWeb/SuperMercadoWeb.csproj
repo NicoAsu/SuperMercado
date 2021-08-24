@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Configuration\ConfigUsers\DetailsUser.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Pages\Configuration\ConfigAdmin.razor" />
     <None Include="Pages\Configuration\ConfigCategorias\AddCategorias.razor" />
     <None Include="Pages\Configuration\ConfigCategorias\ListCategorias.razor" />
@@ -20,7 +16,6 @@
     <None Include="Pages\Configuration\ConfigProducts\ListProducts.razor" />
     <None Include="Pages\Configuration\ConfigSlider\AddSlider.razor" />
     <None Include="Pages\Configuration\ConfigSlider\ListSlider.razor" />
-    <None Include="Pages\Configuration\ConfigUsers\DetailsUser.razor" />
     <None Include="Pages\Configuration\ConfigUsers\InsertRole.razor" />
     <None Include="Pages\Configuration\ConfigUsers\ListRoles.razor" />
     <None Include="Pages\Configuration\ConfigUsers\ListUsers.razor" />
@@ -42,14 +37,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Radzen.Blazor" Version="3.8.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\Configuration\ConfigUsers\DetailsUser.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\Configuration\ConfigUsers\DetailsUser.razor" />
   </ItemGroup>
 
 </Project>

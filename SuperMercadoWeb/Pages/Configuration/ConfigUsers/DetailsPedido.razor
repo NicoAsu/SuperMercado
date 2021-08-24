@@ -1,8 +1,9 @@
-﻿@page "/Config/DetailsPedidos/{id:int}"
+﻿@page "/Config/DetailsUser/Pedido/{id:int}"
 @using Radzen
 @using Radzen.Blazor
 @attribute [Authorize(Roles = "Administrator, Standard")]
-<h3>Detalles del pedido</h3>
+<h3>Detalles pedido</h3>
+
 @if (pedido != null)
 {
     <p><b>Id: </b> @pedido.Id</p>
@@ -49,14 +50,15 @@
     </tbody>
 </table>
 @code {
-    List<PedidosItem> pedidosItems = new List<PedidosItem>();
-    double zoom = 3;
     [Parameter]
     public int id { get; set; }
+    double zoom = 3;
+    List<PedidosItem> pedidosItems = new List<PedidosItem>();
     Pedido pedido;
     protected override void OnInitialized()
     {
-        pedido = dataContext.Pedidos.Where(x => x.Id == id).FirstOrDefault();
+        pedido = dataContext.Pedidos.Find(id);
         pedidosItems = dataContext.PedidosItems.Where(x => x.IdPedido == id).ToList();
     }
+
 }

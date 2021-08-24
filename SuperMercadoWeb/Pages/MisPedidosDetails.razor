@@ -1,7 +1,9 @@
-﻿@page "/Config/DetailsPedidos/{id:int}"
+﻿@page "/MisPedidos/{id:int}"
 @using Radzen
 @using Radzen.Blazor
-@attribute [Authorize(Roles = "Administrator, Standard")]
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JsRuntime
 <h3>Detalles del pedido</h3>
 @if (pedido != null)
 {
@@ -54,9 +56,24 @@
     [Parameter]
     public int id { get; set; }
     Pedido pedido;
+    string userId;
     protected override void OnInitialized()
     {
-        pedido = dataContext.Pedidos.Where(x => x.Id == id).FirstOrDefault();
-        pedidosItems = dataContext.PedidosItems.Where(x => x.IdPedido == id).ToList();
+        var principal = HttpContextAccessor.HttpContext.User;
+        userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId != null)
+        {
+            pedido = dataContext.Pedidos.Where(x => x.Id == id && x.UserId == userId).FirstOrDefault();
+            pedidosItems = dataContext.PedidosItems.Where(x => x.IdPedido == id).ToList();
+        }
+        else
+        {
+            alerta("Debe estar logeado para esto");
+        }
+    }
+    async Task alerta(string mensaje)
+    {
+        await JsRuntime.InvokeVoidAsync("alert", mensaje);
     }
 }

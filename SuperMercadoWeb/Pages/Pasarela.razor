@@ -87,50 +87,53 @@
     List<Producto> products = new List<Producto>();
     async Task Comprar()
     {
-        actualizarPrecioTotal();
-        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "El precio total es: "+cantidadTotal+"\nDesea proseguir con el pago?");
+        if (userId != null) {
+            actualizarPrecioTotal();
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "El precio total es: "+cantidadTotal+"\nDesea proseguir con el pago?");
 
-        if (confirmed)
-        {
-            bool ok = true;
-            foreach(Carrito carrito in carritos)
+            if (confirmed)
             {
-                var producto = products.Where(x => x.Id == carrito.ProductoId).FirstOrDefault();
-                if (carrito.Cantidad > producto.Cantidad)
+                bool ok = true;
+                foreach(Carrito carrito in carritos)
                 {
-                    await alerta($"Solo quedan {producto.Cantidad} del producto {producto.Nombre} y tú pides {carrito.Cantidad}");
-                    ok = false;
-                    break;
+                    var producto = products.Where(x => x.Id == carrito.ProductoId).FirstOrDefault();
+                    if (carrito.Cantidad > producto.Cantidad)
+                    {
+                        await alerta($"Solo quedan {producto.Cantidad} del producto {producto.Nombre} y tú pides {carrito.Cantidad}");
+                        ok = false;
+                        break;
+                    }
                 }
-            }
-            if (ok)
-            {
-                Pedido pedido = new Pedido();
-                pedido.PrecioTotal = 0;
-                List<PedidosItem> pedidosItems = new List<PedidosItem>();
-                foreach (Carrito carrito in carritos)
+                if (ok)
                 {
-                    Producto producto = products.Where(x => x.Id == carrito.ProductoId).FirstOrDefault();
-                    pedido.PrecioTotal = pedido.PrecioTotal +(producto.Precio * carrito.Cantidad);
-                    producto.Cantidad = producto.Cantidad - carrito.Cantidad;
-                    pedidosItems.Add(new PedidosItem { ProductoId = producto.Id, Cantidad =carrito.Cantidad, PrecioUnidad=producto.Cantidad});
-                    dataContext.Remove(carrito);
-                }
-                pedido.Telefono = pago.Telefono;
-                pedido.Latitud = pago.Latitud;
-                pedido.Longitud = pago.Longitud;
-                pedido.Direccion = pago.Direccion;
-                pedido.Estado = "Proceso";
-                pedido.UserId = userId;
-                pedido.Comentario = pago.comentario;
-                await dataContext.AddAsync(pedido);
-                foreach(var pedidoItem in pedidosItems)
-                {
-                    pedidoItem.IdPedido = pedido.Id;
-                    dataContext.PedidosItems.Add(pedidoItem);
-                }
-                await dataContext.SaveChangesAsync();
+                    Pedido pedido = new Pedido();
+                    pedido.PrecioTotal = 0;
+                    List<PedidosItem> pedidosItems = new List<PedidosItem>();
+                    foreach (Carrito carrito in carritos)
+                    {
+                        Producto producto = products.Where(x => x.Id == carrito.ProductoId).FirstOrDefault();
+                        pedido.PrecioTotal = pedido.PrecioTotal +(producto.Precio * carrito.Cantidad);
+                        producto.Cantidad = producto.Cantidad - carrito.Cantidad;
+                        pedidosItems.Add(new PedidosItem { ProductoId = producto.Id, Cantidad =carrito.Cantidad, PrecioUnidad=producto.Cantidad});
+                        dataContext.Remove(carrito);
+                    }
+                    pedido.Telefono = pago.Telefono;
+                    pedido.Latitud = pago.Latitud;
+                    pedido.Longitud = pago.Longitud;
+                    pedido.Direccion = pago.Direccion;
+                    pedido.Estado = "Proceso";
+                    pedido.UserId = userId;
+                    pedido.Comentario = pago.comentario;
+                    await dataContext.AddAsync(pedido);
+                    await dataContext.SaveChangesAsync();
+                    foreach (var pedidoItem in pedidosItems)
+                    {
+                        pedidoItem.IdPedido = pedido.Id;
+                        dataContext.PedidosItems.Add(pedidoItem);
+                    }
+                    await dataContext.SaveChangesAsync();
 
+                }
             }
         }
     }
@@ -157,7 +160,7 @@
         }
         else
         {
-            alerta("Debe estar logeado para agregar productos al carrito");
+            alerta("Debe estar logeado para esto");
         }
     }
     async Task alerta(string mensaje)
