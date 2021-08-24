@@ -39,9 +39,14 @@
     </div>
 
 </header>
+<button @onclick="()=>navigate()">dd</button>
 <br />
 @code{
     List<Slider> sliders;
+    void navigate()
+    {
+        NavigationManager.NavigateTo("/Config/DetailsUser/@user.UserId");
+    }
     protected override void OnInitialized()
     {
         sliders = dataContext.Sliders.ToList();

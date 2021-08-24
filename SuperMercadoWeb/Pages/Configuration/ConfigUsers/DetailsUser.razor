@@ -1,5 +1,8 @@
-﻿@page "/Config/DetailsUser/{id}"
-<h3>Details User</h3>
+﻿@page "/Config/DetailsUser/{id:string}"
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JsRuntime
+<h3>Detalles del usuario</h3>
 @if (user == null)
 {
     <p><em>Cargando...</em></p>
@@ -91,13 +94,23 @@ else
 @code {
     [Parameter]
     public string id { get; set; }
-
+    string userId;
     IdentityUser user = new IdentityUser();
     IEnumerable<Pedido> listpedidos { get; set; }
     List<Pedido> pedidos = new List<Pedido>();
 
     protected async override Task OnInitializedAsync()
     {
+        if(id == null)
+        {
+            var principal = HttpContextAccessor.HttpContext.User;
+            userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId != null)
+            {
+                
+            }
+        }
         user = await DbLogin.AspNetUsers.FindAsync(id);
 
         listpedidos = await dataContext.Pedidos.ToListAsync();
