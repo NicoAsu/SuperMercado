@@ -2,9 +2,10 @@
 @using System.Security.Claims
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IJSRuntime JsRuntime
+@using Microsoft.EntityFrameworkCore;
 
 <div class="text-center mb-3 border-bottom">
-    <h1 class="mb-3"> Tu carrito de compras </h1>  
+    <h1 class="mb-3"> Tu carrito de compras </h1>
     <a class="btn btn-outline-primary mb-2" role="button" href="Pasarela">
         <i class="bi bi-credit-card"></i>
         Comprar todo
@@ -59,18 +60,17 @@
                 </div>
             </div>
         }
-     }
+    }
 </div>
 
-@code { 
+@code {
     List<Carrito> carritos = new List<Carrito>();
     List<Producto> products = new List<Producto>();
-
     async Task alerta(string mensaje)
     {
         await JsRuntime.InvokeVoidAsync("alert", mensaje);
     }
-    
+
     void actualizar(Carrito carrito, int n)
     {
         if (n > 0)
@@ -81,15 +81,15 @@
         {
             carrito.Cantidad -= 1;
         }
-    
+
         dataContext.SaveChanges();
     }
-    
+
     void eliminar(Carrito carrito)
     {
         var principal = HttpContextAccessor.HttpContext.User;
         var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-    
+
         if (userId != null)
         {
             dataContext.Remove(carrito);
@@ -102,12 +102,12 @@
             alerta("Debe estar logeado para esto");
         }
     }
-    
+
     protected override void OnInitialized()
     {
         var principal = HttpContextAccessor.HttpContext.User;
         var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-    
+
         if (userId != null)
         {
             carritos = dataContext.Carritos.Where(x => x.UserId == userId).ToList();
@@ -117,5 +117,5 @@
         {
             alerta("Debe estar logeado para agregar productos al carrito");
         }
-    } 
+    }
 }

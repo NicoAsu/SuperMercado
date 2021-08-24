@@ -101,12 +101,7 @@ namespace SuperMercadoWeb.Data
 
             modelBuilder.Entity<PedidosItem>(entity =>
             {
-                entity.HasNoKey();
 
-                entity.Property(e => e.PrecioUnidad)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsFixedLength(true);
             });
 
             modelBuilder.Entity<Producto>(entity =>
