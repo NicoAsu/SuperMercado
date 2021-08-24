@@ -48,6 +48,7 @@ namespace SuperMercadoWeb.Services
         {
             return await _identitycontext.AspNetRoles.ToListAsync();
         }
+
     }
 }
 
