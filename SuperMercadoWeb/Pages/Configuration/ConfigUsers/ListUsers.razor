@@ -1,7 +1,13 @@
 ﻿@page "/Config/ListUsers"
 @attribute [Authorize(Roles = "Administrator, Standard")]
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _conf
 <h3>Lista de Usuarios</h3>
-@if (roleuser == null)
+@if (userModels == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (userModels == null)
 {
     <p><em>Cargando...</em></p>
 }
@@ -17,19 +23,25 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in roleuser)
+            @foreach (var user in userModels)
             {
                 <tr style="text-align:center;">
                     <td>@user.UserName</td>
                     <td>@user.Email</td>
-                    <td>@user.RoleName</td>
+
+                    <td>
+                        @user.RoleName
+                    </td>
 
                     <td>
                         <AuthorizeView Roles="Administrator">
-                            <button @onclick="() => Eliminar(user.UserId)" class="btn btn-danger btn-xs" title="Eliminar">
+                            @*<button @onclick="() => Eliminar(user.UserId)" class="btn btn-danger btn-xs" title="Eliminar">
                                 <i class="oi oi-trash"></i>
-                            </button>
+                            </button>*@
                         </AuthorizeView>
+                        <a href="/Config/DetailsUser/@user.UserId" class="btn btn-primary btn-xs" title="Detalles">
+                            Detalles
+                        </a>
                     </td>
                 </tr>
             }
@@ -37,32 +49,33 @@ else
     </table>
 }
 @code {
+    IdentityUser userslist = new IdentityUser();
+    IdentityRole roleslist = new IdentityRole();
 
-    List<RoleUserModel> roleuser;
+    IEnumerable<IdentityUserRole<string>> userRoles { get; set; }
+
+    List<RoleUserModel> userModels = new List<RoleUserModel>();
 
     protected override async Task OnInitializedAsync()
     {
-        var listado = await (from user in DbLogin.Users
-                             join userRoles in DbLogin.UserRoles on user.Id equals userRoles.UserId
-                             join role in DbLogin.Roles on userRoles.RoleId equals role.Id
-                             select new { UserId = user.Id, UserName = user.UserName, Email = user.Email, RoleId = role.Id, RoleName = role.Name })
-                     .ToListAsync();
-        foreach (var user in listado)
+        userRoles = await DbLogin.AspNetUserRoles.ToListAsync();
+
+        foreach (var item in userRoles)
         {
-            roleuser.Add(new RoleUserModel()
+            userslist = await DbLogin.AspNetUsers.FindAsync(item.UserId);
+            roleslist = await DbLogin.AspNetRoles.FindAsync(item.RoleId);
+
+            userModels.Add(new RoleUserModel
             {
-                UserId = user.UserId,
-                RoleId = user.RoleId,
-                UserName = user.UserName,
-                RoleName = user.RoleName,
-                Email = user.Email
+                UserId = userslist.Id,
+                UserName = userslist.UserName,
+                Email = userslist.Email,
+                RoleId = roleslist.Id,
+                RoleName = roleslist.Name
             });
         }
     }
-    protected async Task Eliminar(string id)
-    {
-        await UserService.DeleteUser(id);
-        await OnInitializedAsync();
-    }
+
+
 }
 

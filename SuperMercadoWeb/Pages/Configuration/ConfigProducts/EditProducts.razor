@@ -110,7 +110,7 @@
     protected async Task Editar()
     {
         await ProductsService.SaveProduct(producto);
-        NavigationManager.NavigateTo("/Config/ListProduct");
+        NavigationManager.NavigateTo("/Config/ListProducts");
     }
 
     private void EditFoto()

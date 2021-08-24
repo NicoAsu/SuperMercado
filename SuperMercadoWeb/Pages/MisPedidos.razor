@@ -1,8 +1,10 @@
-﻿@page "/Config/ListPedidos"
+﻿@page "/MisPedidos"
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JsRuntime
 @using Radzen
 @using Radzen.Blazor
-@attribute [Authorize(Roles = "Administrator, Standard")]
-<h3>Lista de pedidos</h3>
+<h3>MisPedidos</h3>
 <label>Filtrar por estado: </label>
 <select @bind="filtro" class="form-control">
     <option value="0" selected="selected">Todos</option>
@@ -19,12 +21,9 @@
 <button class="btn btn-primary" @onclick="buscar">Buscar</button>
 <br />
 <br />
-@if (cargando)
+@if (userId != null)
 {
-    <p><em>Cargando...</em></p>
-}
-else
-{
+
     <div class="row">
         <div class="col-x1-6">
             <RadzenGoogleMap Style="height: 400px; width: 600px; " zoom="@zoom" Center="@(new GoogleMapPosition() {Lat = 0, Lng = 0})">
@@ -59,10 +58,7 @@ else
                     <td>@pedido.PrecioTotal</td>
                     <td>@pedido.Estado</td>
                     <td>
-                        <a href="/Config/EditPedidos/@pedido.Id" class="btn btn-primary btn-xs" title="Editar">
-                            <i class="oi oi-pencil"></i>
-                        </a>
-                        <a href="/Config/DetailsPedidos/@pedido.Id" class="btn btn-primary btn-xs" title="Detalles">
+                        <a href="/MisPedidos/@pedido.Id" class="btn btn-primary btn-xs" title="Detalles">
                             detalles
                         </a>
                     </td>
@@ -77,33 +73,47 @@ else
     List<Pedido> pedidos;
     bool cargando = true;
     int Id = 0;
+    string userId;
     void actualizar()
     {
         cargando = true;
         switch (filtro)
         {
             case "1":
-                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "proceso").ToList();
+                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "proceso" && x.UserId==userId).ToList();
                 break;
             case "2":
-                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "enviado").ToList();
+                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "enviado" && x.UserId == userId).ToList();
                 break;
             case "3":
-                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "completado").ToList();
+                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "completado" && x.UserId == userId).ToList();
                 break;
             default:
-                pedidos = dataContext.Pedidos.ToList();
+                pedidos = dataContext.Pedidos.Where(x => x.UserId == userId).ToList();
                 break;
         }
         cargando = false;
     }
     void buscar()
     {
-        pedidos = dataContext.Pedidos.Where(x => x.Id == Id).ToList();
+        pedidos = dataContext.Pedidos.Where(x => x.Id == Id && x.UserId==userId).ToList();
     }
     protected override void OnInitialized()
     {
-        pedidos = dataContext.Pedidos.ToList();
-        cargando = false;
+        var principal = HttpContextAccessor.HttpContext.User;
+        userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId != null)
+        {
+            pedidos = dataContext.Pedidos.Where(x => x.UserId == userId).ToList();
+        }
+        else
+        {
+            alerta("Debe estar logeado para esto");
+        }
+    }
+    async Task alerta(string mensaje)
+    {
+        await JsRuntime.InvokeVoidAsync("alert", mensaje);
     }
 }
