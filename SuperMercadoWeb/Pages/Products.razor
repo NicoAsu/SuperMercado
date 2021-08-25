@@ -62,13 +62,20 @@ else
                     <!-- boton-->
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
-                            <a class="btn btn-outline-primary mt-auto" @onclick="() => anadir(producto.Id)">Añadir al carrito</a>
+                            <a class="btn btn-outline-primary mt-auto enlaces" @onclick="() => anadir(producto.Id)">Añadir al carrito</a>
                         </div>
                     </div>
-                </div>
+                </div> 
             </div>
         }
     </div>
+
+    <style>
+        .enlaces:hover{
+            color: white;
+            cursor: pointer;
+        }
+    </style>
 }
 
 @code {

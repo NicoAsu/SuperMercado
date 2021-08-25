@@ -4,23 +4,33 @@
 @inject IJSRuntime JsRuntime
 @using Radzen
 @using Radzen.Blazor
-<h3>MisPedidos</h3>
-<label>Filtrar por estado: </label>
-<select @bind="filtro" class="form-control">
-    <option value="0" selected="selected">Todos</option>
-    <option value="1">Proceso</option>
-    <option value="2">Enviados</option>
-    <option value="3">Completados</option>
-</select>
-<br />
-<button class="btn btn-primary" @onclick="actualizar">Filtrar</button>
-<br />
-<label>Buscar Id: </label>
-<input type="number" @bind="Id" />
-<br />
-<button class="btn btn-primary" @onclick="buscar">Buscar</button>
-<br />
-<br />
+
+
+<h1 class="mb-4" style="width: max-content; border-block-end: 4px solid cornflowerblue; border-radius: 10%">Mis pedidos</h1>
+
+<div class="d-flex mb-3">
+    <button type="button" class="btn btn-primary mr-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Filtrar por Estado" @onclick="actualizar">
+        filtrar
+    </button>
+
+    <select @bind="filtro" class="form-control" style="width: max-content;">
+        <option value="0" selected="selected">Todos</option>
+        <option value="1">Proceso</option>
+        <option value="2">Enviados</option>
+        <option value="3">Completados</option>
+    </select>
+</div>
+
+<div class="d-flex mb-5">
+    <button type="button" class="btn btn-primary mr-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar Id" @onclick="buscar">
+        Buscar
+    </button>
+
+    <input type="number" @bind="Id" placeholder="Buscar Id" style="height:38px" />
+
+</div>
+
+
 @if (userId != null)
 {
 
@@ -80,7 +90,7 @@
         switch (filtro)
         {
             case "1":
-                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "proceso" && x.UserId==userId).ToList();
+                pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "proceso" && x.UserId == userId).ToList();
                 break;
             case "2":
                 pedidos = dataContext.Pedidos.Where(x => x.Estado.ToLower().Trim() == "enviado" && x.UserId == userId).ToList();
@@ -96,7 +106,7 @@
     }
     void buscar()
     {
-        pedidos = dataContext.Pedidos.Where(x => x.Id == Id && x.UserId==userId).ToList();
+        pedidos = dataContext.Pedidos.Where(x => x.Id == Id && x.UserId == userId).ToList();
     }
     protected override void OnInitialized()
     {
