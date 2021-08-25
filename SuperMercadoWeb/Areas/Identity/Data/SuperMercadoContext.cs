@@ -16,7 +16,7 @@ namespace SuperMercadoWeb.Data
         }
         public DbSet<IdentityRole> AspNetRoles { get; set; }
         public DbSet<IdentityUser> AspNetUsers { get; set; }
-
+        public DbSet<IdentityUserRole<string>> AspNetUserRoles { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

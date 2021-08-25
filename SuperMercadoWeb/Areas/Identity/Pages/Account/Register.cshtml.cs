@@ -7,7 +7,6 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -93,7 +92,11 @@ namespace SuperMercadoWeb.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                   
+                    var buscar = await _userManager.FindByNameAsync(user.UserName);
+                    var usuario = new Usuario { UserId = buscar.Id, Fnacimiento = Input.Fnacimiento };
+                    await _datacontext.Usuarios.AddAsync(usuario);
+                    await _userManager.AddToRoleAsync(buscar, "Standard");
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -104,19 +107,11 @@ namespace SuperMercadoWeb.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    var buscar = await _userManager.FindByNameAsync(user.UserName);
-
-                    var usuario = new Usuario { UserId = buscar.Id, Fnacimiento = Input.Fnacimiento };
-                     _datacontext.Usuarios.Add(usuario);
-                    _datacontext.SaveChanges();
-                    await _userManager.AddToRoleAsync(buscar, "Standard");
-
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Por Favor, Confime su Email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Click Aqui</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirmar su Email",
+                        $"Por favor Confime su Cuenta en: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>click Aquí</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-    
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else

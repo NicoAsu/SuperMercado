@@ -31,12 +31,11 @@ namespace SuperMercadoWeb
             services.AddDbContext<DataContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
 
             services.AddScoped<IProductsService, ProductsService>();
             services.AddScoped<IUserService, UserService>();
 
-
+            services.AddHttpContextAccessor();
             //services.AddDefaultIdentity<IdentityUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<SuperMercadoContext>();
         }
 

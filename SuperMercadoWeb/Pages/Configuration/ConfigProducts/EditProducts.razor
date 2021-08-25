@@ -1,4 +1,5 @@
 ﻿@page "/Config/EditProducts/{id:int}"
+@attribute [Authorize(Roles = "Administrator")]
 <h3>Editar Datos del Producto</h3>
 <AuthorizeView Context="Auth">
     <Authorized>
@@ -109,7 +110,7 @@
     protected async Task Editar()
     {
         await ProductsService.SaveProduct(producto);
-        NavigationManager.NavigateTo("/Config/ListProduct");
+        NavigationManager.NavigateTo("/Config/ListProducts");
     }
 
     private void EditFoto()
